@@ -1,1 +1,1 @@
-// This file is deprecated in Next.js App Router structure.
+// Deprecated. See app/page.tsx
