@@ -1,4 +1,3 @@
-'use client';
 import React, { useState, useRef } from 'react';
 import { translateText } from '../services/geminiService';
 
@@ -34,7 +33,12 @@ const Sentence: React.FC<{ text: string }> = ({ text }) => {
       {text}
       {showTooltip && (
         <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-3 py-2 text-sm text-white bg-gray-900 dark:bg-black rounded-md shadow-xl z-50 pointer-events-none border border-gray-700 min-w-[250px] max-w-[400px] text-center whitespace-normal">
-          {loading ? "Translating..." : (translation || 'No translation')}
+          {loading ? (
+             <span className="animate-pulse">Translating...</span>
+          ) : (
+             <span className="font-medium leading-relaxed">{translation || 'No translation'}</span>
+          )}
+          <span className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-black"></span>
         </span>
       )}
     </span>
@@ -42,7 +46,17 @@ const Sentence: React.FC<{ text: string }> = ({ text }) => {
 };
 
 export const HoverableText: React.FC<{ text: string, className?: string }> = ({ text, className }) => {
-  let segments: string[] = text.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) || [text];
+  // Use Intl.Segmenter if available for robust sentence splitting, otherwise regex
+  let segments: string[] = [];
+
+  if (typeof Intl !== 'undefined' && (Intl as any).Segmenter) {
+    const segmenter = new (Intl as any).Segmenter('en', { granularity: 'sentence' });
+    segments = Array.from(segmenter.segment(text)).map((s: any) => s.segment);
+  } else {
+    // Fallback split by punctuation followed by space or end of line
+    segments = text.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) || [text];
+  }
+
   return (
     <div className={className}>
       {segments.map((seg, idx) => (

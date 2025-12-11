@@ -43,6 +43,8 @@ export interface AnalysisConfig {
   creativity: number; // 0.0 to 1.0 (Temperature)
   depth: number;      // 0.0 to 1.0 (Detail level)
   focus: 'broad' | 'balanced' | 'specific';
+  algorithm: 'consultant' | 'standard' | 'strict'; // UPDATED: 3 Modes
+  maxPapers: number;  // New: Controls how many papers are fed into the engine
 }
 
 export interface AnalysisResult {
@@ -51,6 +53,12 @@ export interface AnalysisResult {
   trendData: { year: number; topic: string; count: number }[];
   summary: string;
   methodology: string; // The "Thinking Process" explanation returned by AI
+  // Optional strict mode metadata
+  noiseCount?: number;
+  stopwords?: string[];
+  totalPapersAnalyzed?: number;
+  timestamp?: string; // For history
+  modeUsed?: string; // For history
 }
 
 export interface TrendAnalysisResult {
@@ -62,5 +70,22 @@ export interface TrendAnalysisResult {
 export enum AppMode {
   SEARCH = 'SEARCH',
   ANALYSIS = 'ANALYSIS',
-  TREND_ANALYSIS = 'TREND_ANALYSIS'
+  TREND_ANALYSIS = 'TREND_ANALYSIS',
+  HISTORY = 'HISTORY' // New Mode
+}
+
+// History Types
+export interface SearchHistoryItem {
+  id: string;
+  timestamp: number;
+  query: string;
+  count: number;
+  papers: Paper[]; // Storing small result sets or IDs might be better, but we store full for now for easy restore
+}
+
+export interface AnalysisHistoryItem {
+  id: string;
+  timestamp: number;
+  config: AnalysisConfig;
+  result: AnalysisResult;
 }
